@@ -315,19 +315,11 @@ body.dark .app{
   z-index:8;
   margin:-14px -14px 10px;
   padding:14px 14px 8px;
-  background:
-    radial-gradient(circle at 12% 7%, rgba(255,255,255,0.85), transparent 35%),
-    radial-gradient(circle at 90% 15%, rgba(200,215,225,0.75), transparent 35%),
-    linear-gradient(160deg, #AEBFCA 0%, #C9D7E0 60%);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
+  background:transparent;
 }
 
 body.dark .homeStickyHeader{
-  background:
-    radial-gradient(circle at 12% 7%, rgba(60,80,90,0.65), transparent 35%),
-    radial-gradient(circle at 90% 15%, rgba(50,65,75,0.55), transparent 35%),
-    linear-gradient(160deg, #2A3842 0%, #3A4A55 60%);
+  background:transparent;
 }
 
 .homeTopRow{
@@ -2422,17 +2414,32 @@ body.dark .modalBox{
                          02. CHATS
 ===================================================== -->
 <section id="chats" class="screen">
-  <div class="topbar" style="gap:8px;">
-    <img id="chatsProfilePic" src="" alt="Profile" onclick="openVideoFeed()" style="width:44px; height:44px; object-fit:cover; border-radius:50%; border:2px solid rgba(255,255,255,0.80); box-shadow:0 3px 10px rgba(55,75,90,0.25); cursor:pointer; flex-shrink:0;">
-    <div id="friendStoriesRow" class="friendStoriesRow"></div>
-    <button class="groupCallBtn" title="បង្កើតក្រុម" onclick="openGroupChatModal()">
-      <span>👥</span>
-      <span class="groupCallBadge">+</span>
-    </button>
+  <div class="homeTopRow">
+    <div class="googleSearchBar" style="flex:1;">
+      <button class="hamburgerMenuBtn" onclick="toggleChatsSideMenu()">☰</button>
+      <input id="chatSearch" class="googleSearchInput" placeholder="Search chats..." autocomplete="off" oninput="renderChats()">
+      <button class="groupCallBtn" title="បង្កើតក្រុម" onclick="openGroupChatModal()">
+        <span>👥</span>
+        <span class="groupCallBadge">+</span>
+      </button>
+    </div>
   </div>
-  <input id="chatSearch" class="input" placeholder="Search chats..." oninput="renderChats()">
+  <div id="friendStoriesRow" class="friendStoriesRow"></div>
   <div id="chatList"></div>
+  <button class="primary" style="margin-top:12px;" onclick="openFriendsList()">➕ Add Friend</button>
 </section>
+
+<!-- =====================================================
+                    02b. CHATS SIDE MENU
+===================================================== -->
+<div id="chatsSideMenuOverlay" class="sideMenuOverlay" onclick="closeChatsSideMenu()"></div>
+<div id="chatsSideMenu" class="sideMenu">
+  <button class="sideMenuClose" onclick="closeChatsSideMenu()">✕</button>
+  <div style="text-align:center; margin-top:6px; cursor:pointer;" onclick="closeChatsSideMenu(); openProfile();">
+    <img id="chatsProfilePic" src="" alt="Profile" style="width:64px; height:64px; object-fit:cover; border-radius:50%; border:2px solid rgba(255,255,255,0.80); box-shadow:0 3px 10px rgba(55,75,90,0.25);">
+    <p class="muted" style="margin-top:8px; font-size:13px;">Profile</p>
+  </div>
+</div>
 
 <!-- =====================================================
                     03. CHAT DETAIL
@@ -5329,6 +5336,21 @@ function toggleSideMenu(){
 function closeSideMenu(){
   document.getElementById("homeSideMenu").classList.remove("show");
   document.getElementById("homeSideMenuOverlay").classList.remove("show");
+}
+
+function toggleChatsSideMenu(){
+  const menu = document.getElementById("chatsSideMenu");
+  if(menu.classList.contains("show")){
+    closeChatsSideMenu();
+  }else{
+    menu.classList.add("show");
+    document.getElementById("chatsSideMenuOverlay").classList.add("show");
+  }
+}
+
+function closeChatsSideMenu(){
+  document.getElementById("chatsSideMenu").classList.remove("show");
+  document.getElementById("chatsSideMenuOverlay").classList.remove("show");
 }
 
 function updateAvatarPreview(){
