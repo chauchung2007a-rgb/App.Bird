@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title> 𝑪𝒉𝒂𝒕𝒔 </title>
+<title> Bird </title>
 <style>
 /* =====================================================
                    01. GLOBAL
@@ -2242,6 +2242,53 @@ body.dark .modalBox{
   border:1.5px solid rgba(255,255,255,0.85);
 }
 
+.chatsActionCapsule{
+  position:absolute;
+  right:14px;
+  bottom:calc(84px + env(safe-area-inset-bottom, 0px));
+  z-index:20;
+  display:flex;
+  align-items:center;
+  gap:2px;
+  padding:4px;
+  border:1px solid var(--glass-border);
+  border-radius:999px;
+  background:var(--glass-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  box-shadow:var(--glass-shadow);
+}
+
+.chatsActionBtn{
+  width:46px;
+  height:46px;
+  flex-shrink:0;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.chatsActionBtn svg{
+  width:20px;
+  height:20px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.chatsActionDivider{
+  width:1px;
+  height:24px;
+  background:var(--glass-border);
+  flex-shrink:0;
+}
+
 /* =====================================================
         24b. VIDEO FEED (TIKTOK STYLE)
 ===================================================== */
@@ -2418,15 +2465,19 @@ body.dark .modalBox{
     <div class="googleSearchBar" style="flex:1;">
       <button class="hamburgerMenuBtn" onclick="toggleChatsSideMenu()">☰</button>
       <input id="chatSearch" class="googleSearchInput" placeholder="Search chats..." autocomplete="off" oninput="renderChats()">
-      <button class="groupCallBtn" title="បង្កើតក្រុម" onclick="openGroupChatModal()">
-        <span>👥</span>
-        <span class="groupCallBadge">+</span>
-      </button>
     </div>
   </div>
   <div id="friendStoriesRow" class="friendStoriesRow"></div>
   <div id="chatList"></div>
-  <button class="primary" style="margin-top:12px;" onclick="openFriendsList()">➕ Add Friend</button>
+  <div class="chatsActionCapsule">
+    <button class="chatsActionBtn" onclick="openFriendsList()" title="Add Friend">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+    </button>
+    <div class="chatsActionDivider"></div>
+    <button class="chatsActionBtn" onclick="openGroupChatModal()" title="Create Group">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    </button>
+  </div>
 </section>
 
 <!-- =====================================================
@@ -2906,7 +2957,7 @@ body.dark .modalBox{
   <div class="modalBox" style="border-radius:25px; max-width:420px; margin:0 auto; background:linear-gradient(135deg, #DDE7ED, #C9D7E0);">
     <div class="brand">
       <img id="signupAppLogo" src="" alt="App Logo" class="brandIcon" style="display:none;">
-      <h1 id="signupBrandTitle">𝑪𝒉𝒂𝒕𝒔</h1>
+      <h1 id="signupBrandTitle">Bird</h1>
       <p id="signupSubtitle" class="muted">Create your account</p>
     </div>
     <div id="tempFirebaseDiagBanner" style="display:none; background:#fff3cd; border:2px dashed #cc9900; border-radius:8px; padding:8px 10px; margin-bottom:12px; font-size:12px; line-height:1.5; color:#5a4500; font-family:monospace;"></div>
@@ -5536,7 +5587,7 @@ function openAppCustomization(){
     showToast("Owner only");
     return;
   }
-  document.getElementById("appNameInput").value = localStorage.getItem("chat_app_name") || "𝑪𝒉𝒂𝒕𝒔";
+  document.getElementById("appNameInput").value = localStorage.getItem("chat_app_name") || "Bird";
   pendingAppLogo = localStorage.getItem("chat_app_logo") || null;
   const size = localStorage.getItem("chat_app_logo_size") || "80";
   document.getElementById("appLogoSize").value = size;
@@ -5559,7 +5610,7 @@ function previewAppLogo(event){
 }
 
 function saveAppCustomization(){
-  const name = document.getElementById("appNameInput").value.trim() || "𝑪𝒉𝒂𝒕𝒔";
+  const name = document.getElementById("appNameInput").value.trim() || "Bird";
   const size = document.getElementById("appLogoSize").value;
   localStorage.setItem("chat_app_name", name);
   localStorage.setItem("chat_app_logo_size", size);
@@ -5572,7 +5623,7 @@ function saveAppCustomization(){
 }
 
 function applyAppCustomization(){
-  const name = localStorage.getItem("chat_app_name") || "𝑪𝒉𝒂𝒕𝒔";
+  const name = localStorage.getItem("chat_app_name") || "Bird";
   const logo = localStorage.getItem("chat_app_logo") || null;
   const size = localStorage.getItem("chat_app_logo_size") || "80";
 
