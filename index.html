@@ -2,7 +2,7 @@
 <html lang="km">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title> Bird </title>
 <style>
 /* =====================================================
@@ -1291,6 +1291,15 @@ body.dark .friendSheet{
   border-radius:0 !important;
   z-index:9999 !important;
   margin:0 auto !important;
+  padding-top:env(safe-area-inset-top, 0px) !important;
+  padding-bottom:env(safe-area-inset-bottom, 0px) !important;
+  box-sizing:border-box !important;
+  transform:translateY(100%);
+  transition:transform .32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.mini.fullscreen.slideOpen{
+  transform:translateY(0);
 }
 
 .miniProgressBar{
@@ -1435,7 +1444,7 @@ body.dark .friendSheet{
 .miniActionsRow{
   display:flex;
   align-items:center;
-  gap:4px;
+  gap:8px;
   flex-shrink:0;
   pointer-events:auto;
 }
@@ -1448,8 +1457,8 @@ body.dark .friendSheet{
 }
 
 .miniIconBtn{
-  width:36px;
-  height:36px;
+  width:44px;
+  height:44px;
   border:0;
   border-radius:50%;
   background:transparent;
@@ -1482,9 +1491,9 @@ body.dark .friendSheet{
 }
 
 .miniPlay{
-  width:36px;
-  height:36px;
-  flex:0 0 36px;
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
   border:0;
   border-radius:50%;
   background:var(--primary);
@@ -1575,6 +1584,46 @@ body.dark .friendSheet{
   height:auto;
   overflow-y:hidden;
   padding:0 6px 8px;
+}
+
+#miniDownloadList{
+  display:flex;
+  overflow-x:auto;
+  overflow-y:hidden;
+  touch-action:pan-x;
+  -webkit-overflow-scrolling:touch;
+  gap:10px;
+  scrollbar-width:none;
+}
+
+#miniDownloadList::-webkit-scrollbar{
+  display:none;
+}
+
+#miniDownloadList .miniDownloadItem{
+  flex:0 0 auto;
+  width:84px;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:4px;
+  margin-bottom:0;
+}
+
+#miniDownloadList .miniDownloadCover{
+  width:52px;
+  height:52px;
+  flex:0 0 52px;
+  font-size:24px;
+}
+
+#miniDownloadList .miniDownloadInfo{
+  width:100%;
+}
+
+#miniDownloadList .miniDownloadInfo b,
+#miniDownloadList .miniDownloadInfo small{
+  text-align:center;
 }
 
 .miniDownloadItem{
@@ -2805,14 +2854,14 @@ body.dark .modalBox{
       <small id="miniArtistBig" style="font-size:12px; opacity:.65;">Young Quá, NhoxJet</small>
     </div>
 
-    <div id="miniControlsBig" style="display:none; justify-content:center; align-items:center; gap:16px; width:100%; flex-shrink:0;">
+    <div id="miniControlsBig" style="display:none; justify-content:center; align-items:center; gap:20px; width:100%; flex-shrink:0;">
       <button class="miniIconBtn" title="Shuffle" onclick="event.stopPropagation(); showToast('Shuffle')">
         <svg viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
       </button>
       <button class="miniIconBtn" title="Previous" onclick="event.stopPropagation(); miniPreviousSong()">
         <svg viewBox="0 0 24 24"><path d="M19 20L9 12l10-8v16z"/><path d="M5 19V5"/></svg>
       </button>
-      <button class="miniPlay" style="width:46px; height:46px; flex-basis:46px;" title="Play / Pause" onclick="event.stopPropagation(); togglePlay()">
+      <button class="miniPlay" style="width:56px; height:56px; flex-basis:56px;" title="Play / Pause" onclick="event.stopPropagation(); togglePlay()">
         <svg id="miniPlayIconBig" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
       <button class="miniIconBtn" title="Next" onclick="event.stopPropagation(); miniNextSong()">
@@ -5033,6 +5082,17 @@ function openMiniPlayer(){
   
   mini.classList.add("open");
   mini.classList.add("fullscreen");
+
+  // Double requestAnimationFrame ensures Safari/iOS has actually painted
+  // the initial translateY(100%) state before we start the transition to
+  // translateY(0) — a synchronous reflow read (getBoundingClientRect) is
+  // not always reliable for this on WebKit, which caused the slide-up to
+  // sometimes skip/snap instead of animating smoothly.
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      mini.classList.add("slideOpen");
+    });
+  });
   
   const bottomNav = document.getElementById("bottomNav");
   if(bottomNav) bottomNav.style.display = "none";
@@ -5047,21 +5107,35 @@ function openMiniPlayer(){
 function closeMiniPlayerToBar(){
   const mini = document.getElementById("mini");
   if(!mini) return;
-  
-  mini.classList.remove("open");
-  mini.classList.remove("fullscreen");
-  mini.style.height = "";
-  
-  const bottomNav = document.getElementById("bottomNav");
-  if(bottomNav) bottomNav.style.display = "flex";
-  
-  document.querySelectorAll(".screen").forEach(screen => {
-    if(screen.classList.contains("active")) {
-      screen.style.display = "block";
-    }
-  });
-  
-  updateMiniLayout();
+
+  mini.classList.remove("slideOpen");
+
+  let alreadyClosed = false;
+
+  const finalizeClose = function(event){
+    if(event && event.target !== mini) return;
+    if(alreadyClosed) return;
+    alreadyClosed = true;
+
+    mini.classList.remove("open");
+    mini.classList.remove("fullscreen");
+    mini.style.height = "";
+
+    const bottomNav = document.getElementById("bottomNav");
+    if(bottomNav) bottomNav.style.display = "flex";
+
+    document.querySelectorAll(".screen").forEach(screen => {
+      if(screen.classList.contains("active")) {
+        screen.style.display = "block";
+      }
+    });
+
+    updateMiniLayout();
+    mini.removeEventListener("transitionend", finalizeClose);
+  };
+
+  mini.addEventListener("transitionend", finalizeClose);
+  setTimeout(finalizeClose, 380);
 }
 
 function closeMiniPlayer(){
@@ -5130,8 +5204,6 @@ function updateMiniLayout(){
   
   const downloadList = document.getElementById("miniDownloadList");
   if(downloadList){
-    downloadList.style.overflow = 'hidden';
-    downloadList.style.overflowY = 'hidden';
     downloadList.style.height = 'auto';
     downloadList.style.maxHeight = 'none';
   }
